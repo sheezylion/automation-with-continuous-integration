@@ -20,7 +20,7 @@ Here is how the updated architecture looks.
 
 <img width="743" alt="architecture" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/3561df0c-f2f6-4b39-a500-5d446505d9a6">
 
-#### Step 1 - Install Jenkins server
+### Step 1 - Install Jenkins server
 **1. Create an aws EC2 instance based on Ubuntu Server 24.04 LTS and name it Jenkins**
 
 Results:
@@ -168,7 +168,7 @@ The installation is complete.
 
 <img width="944" alt="Screenshot 2024-06-25 at 21 53 07" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/d9b5987e-e976-4959-ae68-4dd316f33229">
 
-#### Step 2 - Configure Jenkins to retrieve source codes from GitHub using Webhooks
+### Step 2 - Configure Jenkins to retrieve source codes from GitHub using Webhooks
 
 In this part, we will learn how to configure a simple Jenkins job/project. This job will will be triggered by GitHub webhooks and will execute a build task to retrieve codes from GitHub and store it locally on Jenkins server.
 
@@ -177,3 +177,95 @@ In this part, we will learn how to configure a simple Jenkins job/project. This 
 On your GitHub repository,
 
 Select Settings > Webhooks > Add webhook
+
+Results:
+
+<img width="1674" alt="Screenshot 2024-06-25 at 22 09 06" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/18e3c72c-2f63-4f05-b14f-e01454c70a02">
+
+<img width="1319" alt="Screenshot 2024-06-25 at 22 12 21" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/89755560-6c0b-4509-b7cd-c539dbb5bd83">
+
+**2. Go to Jenkins web console, click New Item and create a Freestyle project**
+
+Result:
+
+<img width="1156" alt="Screenshot 2024-06-25 at 22 14 38" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/ecaba1a5-3a8e-4170-a371-085e69bedda8">
+
+To connect our GitHub repository, we will need to provide its URL, we can copy from the repository itself
+
+```
+https://github.com/sheezylion/tooling
+```
+
+In configuration of our Jenkins freestyle project choose Git repository, provide there the link to our Tooling GitHub repository and credentials (user/password) so Jenkins could access files in the repository.
+
+Result:
+
+<img width="1554" alt="Screenshot 2024-06-25 at 22 24 03" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/f93f9936-8ce8-4bf5-8923-9c1dbdf9ee66">
+
+Save the configuration and try to run the build. For now we can only do it manually. Click Build Now button. After all was configured correctly, the build was successfull and was seen under #3 You can open the build and check in Console Output if it has run successfully.
+
+Result:
+
+<img width="1330" alt="Screenshot 2024-06-25 at 22 28 18" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/5917cade-d6f8-4496-9dcd-b0fd5087eac6">
+
+
+But this build does not produce anything and it runs only when we trigger it manually. Let us fix it.
+
+**3. Click Configure our job/project and add these two configurations**
+
+Result:
+
+<img width="1545" alt="Screenshot 2024-06-25 at 22 31 25" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/4c04d314-3af5-48c1-850e-c12e13c65aff">
+
+<img width="1518" alt="Screenshot 2024-06-25 at 22 32 39" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/7d0b576a-c47f-492b-8f80-9334eda0636e">
+
+Now, go ahead and make some change in any file in our GitHub repository (e.g. README.MD file) and push the changes to the main branch.
+
+we will see that a new build has been launched automatically by webhook and its results - artifacts, saved on Jenkins server.
+
+Results:
+
+<img width="1578" alt="Screenshot 2024-06-25 at 22 36 35" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/96678577-3c35-4c41-834c-78b77c9edae4">
+
+<img width="1082" alt="Screenshot 2024-06-25 at 22 37 21" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/2310c543-8d83-490a-8a65-869918107520">
+
+We configured an automated Jenkins job that receives files from GitHub by webhook trigger this method is considered as push because the changes are being pushed and files transfer is initiated by GitHub. There are also other methods: trigger one job (downstreadm) from another (upstream), poll GitHub periodically and others.
+
+By default, the artifacts are stored on Jenkins server locally
+
+```
+ls /var/lib/jenkins/jobs/tooling_github/builds/<build_number>/archive/
+```
+
+### Step 3 - Configure Jenkins to copy files to NFS server via SSH
+
+Now we have our artifacts saved locally on Jenkins server, the next step is to copy them to our NFS server to /mnt/apps directory.
+
+Jenkins is a highly extendable application and there are more than 1400 plugins available. now we will need a plugin that is called Publish Over SSH
+
+**1. Install Publish Over SSH plugin.**
+
+On main dashboard, Select Manage Jenkins > Manage Plugins > Available > Search for Publish over SSH and Install without restart.
+
+Result:
+
+<img width="1661" alt="Screenshot 2024-06-25 at 22 41 47" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/ca65de9f-bcab-4079-81e4-e8ab9bc9079c">
+
+**2. Configure the job/project to copy artifacts over to NFS server**
+On main dashboard select Manage Jenkins > Configure System menu item.
+
+Scroll down to Publish over SSH plugin configuration section and configure it to be able to connect to your NFS server:
+
+- Provide a private key (content of .pem file that we use to connect to NFS server via SSH/Putty)
+
+- Arbitrary name
+
+- Hostname - can be private IP address of our NFS server
+
+- Username - ec2-user (since NFS server is based on EC2 with RHEL 9)
+
+- Remote directory - /mnt/apps since our Web Servers use it as a mointing point to retrieve files from the NFS server
+
+
+
+Test the configuration and make sure the connection returns Success. N.B that TCP port 22 on NFS server must be open to receive SSH connections
