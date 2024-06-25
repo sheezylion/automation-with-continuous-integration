@@ -1,4 +1,4 @@
-<img width="1648" alt="Screenshot 2024-06-25 at 23 21 03" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/24dd6fca-3fc2-4a1f-bd60-77a809a31861"># Tooling Website deployment automation with Continuous Integration using Jenkins
+# Tooling Website deployment automation with Continuous Integration using Jenkins
 Introduction to Jenkins
 
 Jenkins, originally developed by Kohsuke Kawaguchi, has evolved into the de facto standard for CI/CD automation, 
