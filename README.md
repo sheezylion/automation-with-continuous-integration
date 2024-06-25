@@ -221,6 +221,10 @@ Result:
 
 Now, go ahead and make some change in any file in our GitHub repository (e.g. README.MD file) and push the changes to the main branch.
 
+Result:
+
+<img width="1621" alt="Screenshot 2024-06-25 at 23 56 22" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/ad3c61a1-e508-40d4-a5c0-c1071ef1f777">
+
 we will see that a new build has been launched automatically by webhook and its results - artifacts, saved on Jenkins server.
 
 Results:
