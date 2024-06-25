@@ -1,4 +1,4 @@
-# Tooling Website deployment automation with Continuous Integration using Jenkins
+<img width="1648" alt="Screenshot 2024-06-25 at 23 21 03" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/24dd6fca-3fc2-4a1f-bd60-77a809a31861"># Tooling Website deployment automation with Continuous Integration using Jenkins
 Introduction to Jenkins
 
 Jenkins, originally developed by Kohsuke Kawaguchi, has evolved into the de facto standard for CI/CD automation, 
@@ -266,6 +266,60 @@ Scroll down to Publish over SSH plugin configuration section and configure it to
 
 - Remote directory - /mnt/apps since our Web Servers use it as a mointing point to retrieve files from the NFS server
 
+Result:
 
+<img width="1648" alt="Screenshot 2024-06-25 at 23 21 03" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/dbc1b786-88ae-49f0-8a1d-807af24d647b">
 
 Test the configuration and make sure the connection returns Success. N.B that TCP port 22 on NFS server must be open to receive SSH connections
+
+Result:
+
+<img width="1402" alt="Screenshot 2024-06-25 at 23 21 41" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/6cf86053-a321-4cad-b8d3-4a788eb6b876">
+
+Save the configuration, open your Jenkins job/project configuration page and add another one Post-build Action (Send build artifact over ssh).
+
+Result:
+
+<img width="1139" alt="Screenshot 2024-06-25 at 23 33 31" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/6fc8f372-8453-4fa2-8e83-a774842b2f4f">
+
+Also, Configure it to send all files produced by the build into our previouslys define remote directory In our case we want to copy all files and directories, so we use ** If you want to apply some particular pattern to define which files to send
+
+Result:
+
+<img width="1318" alt="Screenshot 2024-06-25 at 23 34 18" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/b54d207c-8f45-4da3-bc39-df10b5b00d22">
+
+Save this configuration and go ahead, change something in README.MD file in our GitHub Tooling repository
+
+Result:
+
+<img width="1676" alt="Screenshot 2024-06-25 at 23 38 55" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/b8b92e90-4eb2-4297-80cd-030a6bd79577">
+
+The line created previously in the README.md file have been removed
+
+Webhook will trigger a new job
+
+Result:
+
+
+<img width="1533" alt="Screenshot 2024-06-25 at 23 42 48" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/270f2ae9-0876-4b04-ae8b-40fcf4d442db">
+
+To make sure that the files in /mnt/apps have been updated - connect via SSH to our NFS Server and verify README.MD file
+
+```
+ls /mnt/apps
+```
+
+Result:
+
+<img width="850" alt="Screenshot 2024-06-25 at 23 47 08" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/cd51e499-c12c-466b-9513-83ae1268e5a9">
+
+
+```
+cat /mnt/apps/README.md
+```
+
+Result:
+
+<img width="841" alt="Screenshot 2024-06-25 at 23 48 08" src="https://github.com/sheezylion/automation-with-continuous-integration/assets/142250556/4add51d8-8129-4ba5-8643-10088a0568f6">
+
+If you see the changes you had previously made in your GitHub - the job works as expected.
